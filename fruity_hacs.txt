@@ -1,0 +1,206 @@
+-| In order to keep the speed of the game constant
+   |- 0x2682 - holds the 0xff if the tested key is pressed, otherwise 0x0
+   |- call $a751 - routine that tests for a specific key pres (doesn't wait for                    a key press, just tests)
+   |- 0x1bf6 - holds game speed 
+   |- 0x5c8e ld ($1bf6), hl 22 f6 1b - changes the game speed
+   |- change the above three bytes to nop in order to keep the speed constant
+
+-| 2d97 call $a751 - checks for joystick fire 2 press
+   1786 - joystick keys (4a, 4b, 48 and 49)
+   177a - two bytes zeros followed by 47(z) 3f(x) 1d() 1f()
+          twen two zeros followed by joystick keys
+   out (c),c ; bc = 0x7f8c ; turns off the lower ROM (gate array is at 0x7fxx)
+      http://www.cpcwiki.eu/index.php/Gate_Array
+   177a - 00 00 45 00 3d 00 3b 00 3c 00 (for wasd controls)
+   2d69 chnage ld de, $13 to ld de, $40 (for fire on key "1!")
+
+-| $2152 stores current time (low 16 bits) read with the call $bd0d
+
+-| $22d7 seems to be a 16-bt counter which count every $2507 loop
+         (increaments by 1)
+
+-| change $3582 (default $1) to for example $f. This will slow down
+   the spawned monsters
+   it seems that we can't slow down frogs
+
+-| $193e table with computer updatable elements
+         there are $23 items, each two bytes long
+         routine at $25bb goes through this list
+         this is just a status table
+
+-| $2507 - big loop that moves computer items as well as checks for the
+           keyboard/joystick presses
+
+_| $1954 is the starting offset for the 8 spawned monsters
+         code $5 and code $6 (when moving through the wall)
+-| $197c is for the frog apple (code $b), and also for the frog
+         two code are used code $9 and code $a (for digging through the wall)
+   $1964 when a regular monster is dead next for positions are filled with $7
+   $1940 next ten positions are for apples
+         $0 apple is stationary
+         $1 apple is falling
+         $3 apple is process of destruction
+         $4 apple is gone
+   $193c is for the bonus monster (likely) code $3  code $0 code $fd
+         ?? $24e7 carries the $3 if the monster is active
+         ?? $364e ld ($24e7),hl -> change the three bytes to 00 (nop)
+
+-| call $148e - masks hl register with de and stores result in hl
+
+-| call $143f - if hl equal to de set hl to 0, otherwise set hl to $ffff
+
+-| code at $35db - likely generates monsters
+
+-| $9010 - master table for sprites (at least $5 x $f in size), two bytes addr
+           points to the actual sprite data:
+              first 2 bytes are size (x times y), then follow the data
+           indexed with the third param to $14f2
+              $c for the frog apple (as an example)
+           index 0 - apple whole
+           index 2 - apple cracked 1/3
+           index 4 - apple cracked 2/3
+           index 6 - apple cracked 3/3
+           index 8 - cherry (10 points)
+           index a - banana (20 points)
+           index c - frog's apple
+           index e - pear (40 points)
+           index 10 - strawberry (quick monster)
+           index 12 - fancy fruit (60 points)
+           index 14 - grapes (70 points)
+           index 16 - fancy fruit (100 points)
+           index 18 - apple (200 points)
+           index 1a - Frank facing left (arm down)
+           index 1c - Frank facing left (arm up)
+           index 1e - Frank facing left (arm down, no ball)
+           index 20 - Frank facing left (arm up, no ball)
+           index 22 - Frank facing right (arm down)
+           index 24 - Frank facing right (arm up)
+           index 26 - Frank facing right (arm down, no ball)
+           index 28 - Frank facing right (arm up, no ball)
+           index 2a - Frank facing forward (left arm down)
+           index 2c - Frank facing forward (left arm up)
+           index 2e - Frank facing forward (left arm down, no ball)
+           index 30 - Frank facing forward (left arm up, no ball)
+           index 32 - spawn hole
+           index 34 - regular monster facing left
+           index 36 - regular monster facing left (nose down)
+           index 38 - regular monster facing right
+           index 3a - regular monster facing right (nose down)
+           index 3c - regular monster facing forward (looking left)
+           index 3e - regular monster facing forward (looking right)
+           index 40 - ball
+           index 42 - no ball (void)
+           index 44 - digit 0
+           index 46 - digit 1
+           index 48 - digit 2
+           index 4a - digit 3
+           index 4c - digit 4
+           index 4e - digit 5
+           index 50 - digit 6
+           index 52 - digit 7
+           index 54 - digit 8
+           index 56 - digit 9
+           index 58 - "SCOR"
+           index 5a - "E ="
+           index 5c - "HIGH"
+           index 5e - frog facing left (open mouth)
+           index 60 - frog facing left (closed mouth)
+           index 62 - frog facing right (open mouth)
+           index 64 - frog facing right (closed mouth)
+           index 66 - frog facing forward (looking right)
+           index 68 - frog facing forward (looking left)
+           index 6a - bonus monster facing left (open mouth)
+           index 6c - bonus monster facing left (closed mouth)
+           index 6e - bonus monster facing right (open mouth)
+           index 70 - bonus monster facing right (closed mouth)
+           index 72 - bonus monster facing forward (looking left)
+           index 74 - bonus monster facing forward (looking right)
+           index 76 - "B" for bonus monster
+           index 78 - "O" for bonus monster
+           index 7a - "N" for bonus monster
+           index 7c - "U" for bonus monster
+           index 7e - "S" for bonus monster
+           index 80 - fast monster facing left (right leg bent)
+           index 82 - fast monster facing left (legs spread)
+           index 84 - fast monster facing right (right leg bent)
+           index 86 - fast monster facing right (legs spread)
+           index 88 - fast monster facing forward (looking left)
+           index 8a - fast monster facing forward (looking right)
+           index 8c - level 1 background
+           index 8e - level 2 background
+           index 90 - level 3 background
+           index 92 - level 4 background
+           index 94 - level 5 background
+           index 96 - level 6 background
+           index 98 - level 7 background
+
+-| call $a908 - calculates destination address on the screen (de),
+                the sprite address (hl), and size (bc, b=y, c=x)
+                a is loaded with the first param, $13
+                e is loaded with the second param, which is variable
+
+-| first column (x coordianate) starts at $2, second one at $7, third at $c,
+   fourth at $11, basically plus $5; there are total of $f colums
+-| first raw (y coordinate) starts at $13, second at $25, third at $37,
+   fourth at $49, the last one at $b5, basically plus $12; there are ten rows
+
+-| call $14f2 - depending on the hl it can draw or clear or compare and clear
+                seems that the sprites are mainly 0x5 x 0xf
+
+                $bf1c contains x from $181e table
+                $bf1a contains y from $1866 table
+                $bf1e contains index into the $9010 sprite table
+                hl contains the actual routine address
+                   $a754 (from $1516) for putting data onto the screen
+                   $a757 (from $1a3c) for clearing data
+                   $a75d (from $1a40) for compare and clear
+
+-| $181e - table (pointed from two bytes at $1504) stores x coordinate
+           (two bytes) for the items; indexed with $1d41
+
+-| $1866 - table (pointed from two bytes at $1506) stores y coordinate
+           (two bytes) for the items; indexed with $1d41
+
+-| $22e1 - Frank's x coordinate
+-| $22e3 - Frank's y coordinate
+-| $236d - Frank's current sprite index (for $9010 table)
+-| $1af1 - Frank's lives (two bytes)
+-| $5a98 dec hl - reduces Frank's lives by 1 (two bytes)
+
+-| 4210 jp z,$422c decides if to inject the frog apple
+
+-| $181e table point to by $1504 - holds x (two bytes) for all items
+
+-| 3f3c jp nz,$432b - spawns the bonus monster (change all three bytes to nop)
+-| 4133 jp z,$41e9 - spawns the fast monster (change $ca to $c3)
+        jp $41e9
+
+-| $492b jp nz,$4859 c2 59 48
+-| $2aa7 call $5903 cd 03 59
+-| $2c91 call $58b1 cd b1 58
+-| $5a32 call $48d9 cd d9 48
+-| $5a48 call $48d9 cd d9 48
+-| $4849 2a
+
+-| $1fd4 - this is a self changing location in the code based on the number
+           of lives
+
+-| $26d5 call $58b1
+-| $2a6b is x
+-| $24e7 is y
+-| $1dc4 index into $139e table
+-| $1dc6 monster y coordinate
+-| $1dc6 monster x coordinate
+-| $5929 jp z,$592d ca 2d 59 change to nop nop nop
+                             this disables the collision detection !
+
+-| call $a73c - sets up sound
+                this jumps into $a877 which calls $bcaa (frimware's
+                   sound queue call)
+                called from frequently from $2ba2, $3ec3, $3e8f, $2a52, the
+                full list being:
+                   2a52, 2ba2, 3e8f, 3ec3, 41dd, 431f, 4989, 49db, 4a15, 4d32,
+                   5017, 53db, 59e5, 5bd2, 5e24, 5e5c, 74a5, 74e9, 81a5
+                as with everything in the game the loop $2507 is used to
+                   inject a tone into AY-3-8192 sound chip, the mainly used
+                   call being at $3e8f
