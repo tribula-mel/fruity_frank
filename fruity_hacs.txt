@@ -12,7 +12,9 @@
    out (c),c ; bc = 0x7f8c ; turns off the lower ROM (gate array is at 0x7fxx)
       http://www.cpcwiki.eu/index.php/Gate_Array
    177a - 00 00 45 00 3d 00 3b 00 3c 00 (for wasd controls)
-   2d69 chnage ld de, $13 to ld de, $40 (for fire on key "1!")
+   177a - 00 00 2c 00 25 00 2a 00 2d 00 (for uhjk controls)
+   2d69 chnage ld de, $13 to ld de, $40 (for fire on key "1")
+   2d69 chnage ld de, $13 to ld de, $47 (for fire on key "z")
 
 -| $2152 stores current time (low 16 bits) read with the call $bd0d
 
